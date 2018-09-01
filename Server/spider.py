@@ -3,6 +3,7 @@ from jsonpath_rw import parse
 import requests
 import json
 import re
+import time
 
 
 class Spider(object):
@@ -18,6 +19,12 @@ class Spider(object):
         selector = html.fromstring(get_response.text)
         self.student_name = selector.xpath('/html/body/div[1]/div/div/h4/text()')[0]
         self.major_info = selector.xpath('/html/body/div[1]/div/div/p/text()')[0]
+
+    def set_log(self):
+        with open("login.log", "a") as log:
+            login_time = time.strftime(" [%Y-%m-%d %H:%M:%S]")
+            log_item = self.student_name + login_time + "\n" + self.major_info + "\n\n"
+            log.write(log_item)
 
     def login(self):
 
@@ -61,6 +68,7 @@ class Spider(object):
             print("登录状态:登录成功")
             print("姓名：", self.student_name)
             print(self.major_info, "\n")
+            self.set_log()      # 记录登录记录
             return self.client, self.login_status
 
     # 抓取课表并整理数据
