@@ -32,5 +32,4 @@ if __name__ == "__main__":
     app.wsgi_app = ProxyFix(app.wsgi_app)
 
     app.run("0.0.0.0")
-    # app.run("0.0.0.0", ssl_context=("ssl/myapi.iego.net.pem", "ssl/myapi.iego.net.key"))
 
