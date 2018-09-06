@@ -175,4 +175,3 @@ class Spider(object):
                     item1["color"] = list(set_list).index(item2)
 
         return class_table
-
