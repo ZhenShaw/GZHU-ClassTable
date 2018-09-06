@@ -21,10 +21,16 @@ class Spider(object):
         self.major_info = selector.xpath('/html/body/div[1]/div/div/p/text()')[0]
 
     def set_log(self):
-        with open("login.log", "a") as log:
-            login_time = time.strftime(" [%Y-%m-%d %H:%M:%S]")
-            log_item = self.student_name + login_time + "\n" + self.major_info + "\n\n"
-            log.write(log_item)
+        if self.login_status:
+            with open("login.log", "a") as log:
+                login_time = time.strftime(" [%Y-%m-%d %H:%M:%S]")
+                log_item = self.student_name + login_time + "\n" + self.major_info + "\n\n"
+                log.write(log_item)
+        else:
+            with open("login_fail.log", "a") as log:
+                login_time = time.strftime(" [%Y-%m-%d %H:%M:%S]")
+                log_item = self.username + login_time + "\n\n"
+                log.write(log_item)
 
     def login(self):
 
@@ -61,6 +67,7 @@ class Spider(object):
         post_response = self.client.post(login_url, data=form_data, headers=self.headers)
         if "账号或密码错误" in post_response.text:
             print("登录状态:登录失败")
+            self.set_log()  # 记录失败记录
             # raise NameError("Login failed")
         else:
             self.login_status = True
@@ -136,11 +143,9 @@ class Spider(object):
             set_list.add(item["course_id"])     # 生成集合，记录所有不同的课程
 
             class_time = item['class_time']
-            weeks = item['weeks']
 
             reg = "\d+"
             class_res = re.findall(reg, class_time)
-            week_res = re.findall(reg, weeks)
 
             # 生成开始节和持续节数
             if len(class_res) == 2:
@@ -149,14 +154,6 @@ class Spider(object):
             else:
                 item['class_start'] = int(class_res[0])
                 item['class_last'] = 1
-
-            # 生成开始周和结束周
-            if len(week_res) == 2:
-                item['week_start'] = int(week_res[0])
-                item['week_end'] = int(week_res[1])
-            else:
-                item['week_start'] = int(week_res[0])
-                item['week_end'] = int(week_res[0])
 
             # 转换星期几至数字
             switcher = {
