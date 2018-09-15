@@ -1,4 +1,4 @@
-from spider import Spider
+from Spider import Spider
 from flask import Flask, request, render_template, jsonify
 
 app = Flask(__name__)
@@ -26,10 +26,18 @@ def index():
         return render_template("index.html", format=post_format)
 
 
+@app.route("/library", methods=["GET"])
+def library():
+    lib = Spider()
+    visit = lib.read_library()
+    return jsonify(visit)
+
+
 if __name__ == "__main__":
 
     from werkzeug.contrib.fixers import ProxyFix
     app.wsgi_app = ProxyFix(app.wsgi_app)
 
     app.run("0.0.0.0")
+    # app.run("0.0.0.0", ssl_context=("ssl/myapi.iego.net.pem", "ssl/myapi.iego.net.key"))
 
