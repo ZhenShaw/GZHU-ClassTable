@@ -5,7 +5,7 @@
 ```bash
 pip install -r requirements.txt		# 安装依赖
 
-python3 apy.py		# 此方式用于开发调试，不适用于生产环境
+python3 api.py		# 此方式用于开发调试，不适用于生产环境
 ```
 
 
