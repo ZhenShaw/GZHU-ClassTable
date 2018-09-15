@@ -1,7 +1,9 @@
+# coding=utf-8
 from lxml import html
 import requests
 import re
 import time
+import json
 
 
 class Library(object):
@@ -39,8 +41,8 @@ class Library(object):
         self.library_visit = {"total": total, "update_time": time.strftime("%Y-%m-%d %H:%M:%S"), "college_list": college_list}
 
         # 存入本地文件
-        with open("record_file/visit_data.txt", "w") as visit:
-            visit.write(str(self.library_visit))
+        with open("record_file/visit_data.json", "w") as visit:
+            json.dump(self.library_visit, visit)
 
     # 设置定时器，15min更新一次
     def timer(self):
@@ -59,3 +61,4 @@ class Library(object):
 print("启动")
 run = Library()
 run.timer()
+

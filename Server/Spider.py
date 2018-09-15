@@ -191,6 +191,6 @@ class Spider(object):
     # 从文件读取图书馆进馆人数
     def read_library(self):
 
-        with open("record_file/visit_data.txt", "r") as f:
-            visit = f.read()
+        with open("record_file/visit_data.json", "r") as f:
+            visit = json.load(f)
         return visit
