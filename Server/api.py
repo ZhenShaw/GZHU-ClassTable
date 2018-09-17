@@ -9,7 +9,6 @@ app.config['JSON_AS_ASCII'] = False
 def index():
 
     post_format = {"username": "", "password": ""}
-
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -21,7 +20,6 @@ def index():
             return jsonify(info)
         else:
             return "登录失败"
-
     else:
         return render_template("index.html", format=post_format)
 
@@ -31,6 +29,25 @@ def library():
     lib = Spider()
     visit = lib.read_library()
     return jsonify(visit)
+
+
+@app.route("/grade", methods=["GET", "POST"])
+def grade():
+
+    post_format = {"username": "", "password": ""}
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        grade = Spider(username, password)
+        grade.login()
+        if grade.login_status:
+            info = grade.modify_grade()
+            return jsonify(info)
+        else:
+            return "登录失败"
+    else:
+        return render_template("index.html", format=post_format)
 
 
 if __name__ == "__main__":

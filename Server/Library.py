@@ -49,13 +49,15 @@ class Library(object):
         hour = int(time.strftime("%H"))
         min = int(time.strftime("%M"))
         self.get_visit()
-        if (hour > 0 and min < 30) and hour < 6:
-            pass
-        else:
-            while hour >= 6:
-                time.sleep(900)      # 15min执行一次
-                self.get_visit()
-                print(time.strftime("%Y-%m-%d %H:%M:%S"))
+
+        while 1:
+            if 0 <= hour < 6:
+                time.sleep(3600)
+            else:
+                while hour >= 6:
+                    time.sleep(900)      # 15min执行一次
+                    self.get_visit()
+                    print(time.strftime("%Y-%m-%d %H:%M:%S"))
 
 
 print("启动")
