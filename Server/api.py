@@ -1,5 +1,5 @@
-from Spider import Spider
 from flask import Flask, request, render_template, jsonify
+from Spider import Spider
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -43,6 +43,7 @@ def grade():
         grade.login()
         if grade.login_status:
             info = grade.modify_grade()
+            print(info)
             return jsonify(info)
         else:
             return "登录失败"

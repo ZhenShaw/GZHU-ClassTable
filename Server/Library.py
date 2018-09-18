@@ -46,8 +46,8 @@ class Library(object):
 
     # 设置定时器，15min更新一次
     def timer(self):
+        print("启动定时任务")
         hour = int(time.strftime("%H"))
-        min = int(time.strftime("%M"))
         self.get_visit()
 
         while 1:
@@ -60,6 +60,7 @@ class Library(object):
                     print(time.strftime("%Y-%m-%d %H:%M:%S"))
 
 
+# if __name__ == "__main__":
 print("启动")
 run = Library()
 run.timer()

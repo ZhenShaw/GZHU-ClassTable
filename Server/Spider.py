@@ -252,31 +252,34 @@ class Spider(object):
 
         jd_xf, xf = 0, 0
 
-        set_year = set(())  # 定义空集合，记录所有不同的学年
-        set_sem = set(())  # 记录所有不同的学年-学期
+        list_year = []  # 定义空列表，有序记录所有不同的学年
+        list_sem = []  # 有序记录所有不同的学年-学期
 
         for item in grade_list:
-            set_year.add(item["year"])
+            if item["year"] not in list_year:
+                list_year.append(item["year"])
 
             xf = xf + float(item["credit"])  # 总学分，分母
             jd_xf = jd_xf + float(item["course_gpa"]) * float(item["credit"])
 
-        GPA = round(jd_xf / xf, 3)  # 大学总绩点
+        GPA = round(jd_xf / xf, 2)  # 大学总绩点
         grade = {"GPA": GPA, "total_credit": xf}
 
         # 添加 学年-学期  如2017-2018-2
-        for set_item in set_year:
+        for set_item in list_year:
             for item in grade_list:
                 if item["year"] == set_item:
                     if item["semester"] == "1":
                         item["year_sem"] = item["year"] + "-1"
-                        set_sem.add(item["year_sem"])
+                        if item["year_sem"] not in list_sem:
+                            list_sem.append(item["year_sem"])
                     else:
                         item["year_sem"] = item["year"] + "-2"
-                        set_sem.add(item["year_sem"])
+                        if item["year_sem"] not in list_sem:
+                            list_sem.append(item["year_sem"])
 
         temp_sem_list = []     # 所有学期的成绩存放于一个列表
-        for set_item in set_sem:
+        for set_item in list_sem:
             jd_xf, xf = 0, 0
 
             temp_sem = {}   # 每个学期的成绩存放于一个字典
@@ -289,7 +292,7 @@ class Spider(object):
                     xf = xf + float(item["credit"])  # 总学分，分母
                     jd_xf = jd_xf + float(item["course_gpa"]) * float(item["credit"])
 
-            sem_gpa = round(jd_xf / xf, 3)
+            sem_gpa = round(jd_xf / xf, 2)
             temp_sem["sem_credit"] = xf  # 学期总学分
             temp_sem["sem_gpa"] = sem_gpa  # 学期绩点
             temp_sem_list.append(temp_sem)
