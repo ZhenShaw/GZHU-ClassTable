@@ -52,7 +52,8 @@ class Library(object):
 
         while 1:
             if 0 <= hour < 6:
-                time.sleep(3600)
+                time.sleep(25000)
+                continue
             else:
                 while hour >= 6:
                     time.sleep(900)      # 15min执行一次
@@ -60,8 +61,8 @@ class Library(object):
                     print(time.strftime("%Y-%m-%d %H:%M:%S"))
 
 
-# if __name__ == "__main__":
-print("启动")
-run = Library()
-run.timer()
+if __name__ == "__main__":
+    print("启动")
+    run = Library()
+    run.timer()
 
