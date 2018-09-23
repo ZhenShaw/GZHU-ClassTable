@@ -230,6 +230,8 @@ class Spider(object):
             course_type = parse('$.items[*].kcxzmc').find(grade_json)  # 课程性质
             exam_type = parse('$.items[*].ksxz').find(grade_json)  # 考试性质 正常/补考/重修
 
+            self.totalCount = parse('$.totalCount').find(grade_json)[0].value  # 成绩总条数
+
             self.grade_list = []
             for idx, item in enumerate(course_id):
                 temp = {}
@@ -250,64 +252,67 @@ class Spider(object):
     def modify_grade(self):
         grade_list = self.get_grage()
 
-        jd_xf, xf = 0, 0
-
-        list_year = []  # 定义空列表，有序记录所有不同的学年
-        list_sem = []  # 有序记录所有不同的学年-学期
-
-        for item in grade_list:
-            if item["year"] not in list_year:
-                list_year.append(item["year"])
-
-            xf = xf + float(item["credit"])  # 总学分，分母
-            jd_xf = jd_xf + float(item["course_gpa"]) * float(item["credit"])
-
-        GPA = round(jd_xf / xf, 2)  # 大学总绩点
-        grade = {"GPA": GPA, "total_credit": xf}
-
-        # 添加 学年-学期  如2017-2018-2
-        for set_item in list_year:
-            for item in grade_list:
-                if item["year"] == set_item:
-                    if item["semester"] == "1":
-                        item["year_sem"] = item["year"] + "-1"
-                        if item["year_sem"] not in list_sem:
-                            list_sem.append(item["year_sem"])
-                    else:
-                        item["year_sem"] = item["year"] + "-2"
-                        if item["year_sem"] not in list_sem:
-                            list_sem.append(item["year_sem"])
-
-        temp_sem_list = []     # 所有学期的成绩存放于一个列表
-        for set_item in list_sem:
+        if self.totalCount == 0:
+            grade = {"update_time": time.strftime("%Y-%m-%d %H:%M:%S"), "totalCount": self.totalCount}
+            return grade
+        else:
             jd_xf, xf = 0, 0
 
-            temp_sem = {}   # 每个学期的成绩存放于一个字典
+            list_year = []  # 定义空列表，有序记录所有不同的学年
+            list_sem = []  # 有序记录所有不同的学年-学期
+
             for item in grade_list:
-                if item["year_sem"] == set_item:
-                    temp_sem["year_sem"] = item["year_sem"]
-                    temp_sem["year"] = item["year"]
-                    temp_sem["semester"] = item["semester"]
+                if item["year"] not in list_year:
+                    list_year.append(item["year"])
 
-                    xf = xf + float(item["credit"])  # 总学分，分母
-                    jd_xf = jd_xf + float(item["course_gpa"]) * float(item["credit"])
+                xf = xf + float(item["credit"])  # 总学分，分母
+                jd_xf = jd_xf + float(item["course_gpa"]) * float(item["credit"])
 
-            sem_gpa = round(jd_xf / xf, 2)
-            temp_sem["sem_credit"] = xf  # 学期总学分
-            temp_sem["sem_gpa"] = sem_gpa  # 学期绩点
-            temp_sem_list.append(temp_sem)
+            GPA = round(jd_xf / xf, 2)  # 大学总绩点
+            grade = {"GPA": GPA, "total_credit": xf, "update_time": time.strftime("%Y-%m-%d %H:%M:%S"), "totalCount": self.totalCount}
 
-        for sem_item in temp_sem_list:
-            temp = []
-            for item in grade_list:
-                if item["year_sem"] == sem_item["year_sem"]:
-                    temp.append(item)
-                sem_item["grade_list"] = temp
+            # 添加 学年-学期  如2017-2018-2
+            for set_item in list_year:
+                for item in grade_list:
+                    if item["year"] == set_item:
+                        if item["semester"] == "1":
+                            item["year_sem"] = item["year"] + "-1"
+                            if item["year_sem"] not in list_sem:
+                                list_sem.append(item["year_sem"])
+                        else:
+                            item["year_sem"] = item["year"] + "-2"
+                            if item["year_sem"] not in list_sem:
+                                list_sem.append(item["year_sem"])
 
-        grade["sem_list"] = temp_sem_list
-        grade["student_id"] = self.username
-        grade["name"] = self.student_name
-        grade["major"] = self.major_info
+            temp_sem_list = []     # 所有学期的成绩存放于一个列表
+            for set_item in list_sem:
+                jd_xf, xf = 0, 0
 
-        return grade
+                temp_sem = {}   # 每个学期的成绩存放于一个字典
+                for item in grade_list:
+                    if item["year_sem"] == set_item:
+                        temp_sem["year_sem"] = item["year_sem"]
+                        temp_sem["year"] = item["year"]
+                        temp_sem["semester"] = item["semester"]
 
+                        xf = xf + float(item["credit"])  # 总学分，分母
+                        jd_xf = jd_xf + float(item["course_gpa"]) * float(item["credit"])
+
+                sem_gpa = round(jd_xf / xf, 2)
+                temp_sem["sem_credit"] = xf  # 学期总学分
+                temp_sem["sem_gpa"] = sem_gpa  # 学期绩点
+                temp_sem_list.append(temp_sem)
+
+            for sem_item in temp_sem_list:
+                temp = []
+                for item in grade_list:
+                    if item["year_sem"] == sem_item["year_sem"]:
+                        temp.append(item)
+                    sem_item["grade_list"] = temp
+
+            grade["sem_list"] = temp_sem_list
+            grade["student_id"] = self.username
+            grade["name"] = self.student_name
+            grade["major"] = self.major_info
+
+            return grade

@@ -5,8 +5,8 @@ app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
 
-@app.route("/", methods=["GET", "POST"])
-def index():
+@app.route("/course", methods=["GET", "POST"])
+def course():
 
     post_format = {"username": "", "password": ""}
     if request.method == 'POST':
